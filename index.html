@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Selector</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #f4f4f9;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        select, button {
+            padding: 10px;
+            font-size: 16px;
+            margin: 10px;
+        }
+
+        #output {
+            margin-top: 20px;
+            padding: 20px;
+            border: 1px solid #ccc;
+            background: #fff;
+            width: 300px;
+            word-wrap: break-word;
+        }
+
+        .output-item {
+            margin-bottom: 15px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            background: #fafafa;
+            border-radius: 5px;
+        }
+
+        .output-item h3 {
+            margin: 0 0 5px;
+            color: #555;
+        }
+
+        .output-item p {
+            margin: 0;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <h1>Выбор API</h1>
+    <select id="apiSelector">
+        <option value="https://catfact.ninja/fact">Кошкофакт</option>
+        <option value="https://api.coindesk.com/v1/bpi/currentprice.json">биток</option>
+        <option value="https://dog.ceo/api/breeds/image/random">пёсели</option>
+        <option value="https://official-joke-api.appspot.com/random_joke">мем</option>
+    </select>
+    <button onclick="fetchData()">эту кнопку</button>
+    <div id="output">Выбери апи и нажми на кнопку</div>
+
+    <script>
+        //получение данных с АПИ
+        async function fetchData() {
+            const apiSelector = document.getElementById('apiSelector'); // получаем выбранный API
+            const output = document.getElementById('output'); // блок для вывода данных
+
+            const apiUrl = apiSelector.value; // юрл выбранного API
+
+            try {
+                //запрос к апи
+                const response = await fetch(apiUrl);
+
+                //проверка успешен ли запрос
+                if (!response.ok) {
+                    throw new Error(`API error: ${response.statusText}`);
+                }
+
+                //ответ в джисон
+                const data = await response.json();
+
+                // очищается предыдущий вывод
+                output.innerHTML = '';
+
+                //вывод в зависимости от апи
+                if (apiUrl === 'https://catfact.ninja/fact') {
+                    // Отображение кошкафакта
+                    const factDiv = document.createElement('div');
+                    factDiv.classList.add('output-item');
+                    factDiv.innerHTML = `<h3>Cat Fact:</h3><p>${data.fact}</p>`;
+                    output.appendChild(factDiv);
+                } else if (apiUrl === 'https://api.coindesk.com/v1/bpi/currentprice.json') {
+                    //биток биточек
+                    const btcDiv = document.createElement('div');
+                    btcDiv.classList.add('output-item');
+                    btcDiv.innerHTML = `
+                        <h3>Bitcoin Price:</h3>
+                        <p>USD: ${data.bpi.USD.rate}</p>
+                        <p>EUR: ${data.bpi.EUR.rate}</p>
+                    `;
+                    output.appendChild(btcDiv);
+                } else if (apiUrl === 'https://dog.ceo/api/breeds/image/random') {
+                    //Красивые бобики
+                    const dogDiv = document.createElement('div');
+                    dogDiv.classList.add('output-item');
+                    dogDiv.innerHTML = `<h3>Random Dog Image:</h3><img src="${data.message}" alt="Random Dog" style="max-width: 100%; border-radius: 5px;">`;
+                    output.appendChild(dogDiv);
+                } else if (apiUrl === 'https://official-joke-api.appspot.com/random_joke') {
+                    // мем
+                    const jokeDiv = document.createElement('div');
+                    jokeDiv.classList.add('output-item');
+                    jokeDiv.innerHTML = `
+                        <h3>Random Joke:</h3>
+                        <p><strong>Setup:</strong> ${data.setup}</p>
+                        <p><strong>Punchline:</strong> ${data.punchline}</p>
+                    `;
+                    output.appendChild(jokeDiv);
+                }
+            } catch (error) {
+                //ошибка если запрос не удался
+                output.textContent = `Error: ${error.message}`;
+            }
+        }
+    </script>
+</body>
+</html>
